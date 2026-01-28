@@ -19,7 +19,7 @@ connectionRetries: 5,
 (async () => {
 await client.start();
 console.log("✅ Logged in and running...");
-})();
+
 
 
 // 🔥 NEW MESSAGE HANDLER
@@ -62,7 +62,8 @@ if (!msg) return;
     console.log("✅ Message forwarded");
     // Save for edit tracking
     messageMap.set(msg.id, sent.id);
-}, new NewMessage({ chats: [SOURCE_CHAT], incoming: true }));
+}
+}, new NewMessage({}));
 
 
 // ✨ EDIT HANDLER
@@ -85,10 +86,10 @@ client.addEventHandler(async (event) => {
 
         console.log("✅ Copy updated");
     } // closes: if (messageMap.has(msg.id))
-
-}, new NewMessage({
+ 
+ , new NewMessage({
     chats: [SOURCE_CHAT],
     incoming: true,
     func: (e) => e.message.editDate // 🔥 THIS LINE IS THE KEY
-}));
-}) ();
+  }));
+  })();
