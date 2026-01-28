@@ -3,7 +3,7 @@ console.log("BOT STARTING...");
 
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
-const { NewMessage } = require("telegram/events"); // ❗ ONLY NewMessage
+const { NewMessage } = require("telegram/events");
 
 const apiId = 31581826;
 const apiHash = "3e159192e5ad7e5052530bb69325994c";
@@ -51,7 +51,6 @@ return;
 let sent;
 
 try {
-// Send text
 sent = await client.sendMessage(DEST_CHAT, {
 message: msg.text || "",
 });
@@ -71,7 +70,7 @@ incoming: true,
 })
 );
 
-// ================= EDIT HANDLER (CORRECT WAY) =================
+// ================= EDIT HANDLER =================
 client.addEventHandler(
 async (event) => {
 const msg = event.message;
@@ -92,7 +91,10 @@ console.log("✅ Copy updated");
 },
 new NewMessage({
 chats: [SOURCE_CHAT],
-edited: true, // 🔥 THIS replaces EditedMessage
+edited: true,
 })
 );
+
+// 🔥 KEEP BOT ALIVE (THIS STOPS RAILWAY SHUTTING IT DOWN)
+process.stdin.resume();
 })();
