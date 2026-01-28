@@ -68,7 +68,7 @@ if (!msg) return;
 chats: [SOURCE_CHAT],
 incoming: true,
 func: (e) => e.message.editDate
-}));
+});
 
 
 // ✨ EDIT HANDLER
