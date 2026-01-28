@@ -3,7 +3,7 @@ console.log("BOT STARTING...");
 console.log("BOT STARTING...");
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
-const { NewMessage } = require("telegram/events");
+const { NewMessage, MessageEdited } = require("telegram/events");
 
 const apiId = 31581826; // <-- PUT YOUR API ID
 const apiHash = "3e159192e5ad7e5052530bb69325994c"; // <-- PUT YOUR API HASH
@@ -57,8 +57,8 @@ console.log("Message detected:", msgId);
 
     // ONLY react to source chat
 
+    
     console.log("📥 Message from SOURCE detected");
-
     // Send text OR media
     const sent = await client.sendMessage(DEST_CHAT, {
         message: msg.text || "",
@@ -72,8 +72,7 @@ console.log("Message detected:", msgId);
 }), new NewMessage({
 chats: [SOURCE_CHAT],
 incoming: true,
-func: (e) => e.message.editDate
-});
+}));
 
 
 // ✨ EDIT HANDLER
@@ -97,9 +96,7 @@ client.addEventHandler(async (event) => {
         console.log("✅ Copy updated");
     } // closes: if (messageMap.has(msg.id))
  
-}, new NewMessage({
-chats: [SOURCE_CHAT],
-incoming: true,
-func: (e) => e.message.editDate
+}, new MessageEdited({
+chats: [SOURCE_CHAT]
 }));
 })();
