@@ -4,7 +4,7 @@ console.log("BOT STARTING...");
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const { NewMessage } = require("telegram/events");
-const http = require("http"); // ⭐ needed for Railway
+const http = require("http"); // Railway keep-alive server
 
 const apiId = 31581826;
 const apiHash = "3e159192e5ad7e5052530bb69325994c";
@@ -16,11 +16,13 @@ const DEST_CHAT = -1003424003343;
 // Map original → copied message
 const messageMap = new Map();
 
+(async () => {
+try {
 const client = new TelegramClient(stringSession, apiId, apiHash, {
 connectionRetries: 5,
 });
 
-(async () => {
+console.log("🔌 Connecting to Telegram...");
 await client.connect();
 console.log("✅ Logged in and running...");
 
@@ -49,21 +51,16 @@ console.log("🚫 Scam message blocked");
 return;
 }
 
-let sent;
-
 try {
-sent = await client.sendMessage(DEST_CHAT, {
+const sent = await client.sendMessage(DEST_CHAT, {
 message: msg.text || "",
 });
-} catch (err) {
-console.log("⚠️ Could not forward message:", err.message);
-return;
-}
 
 console.log("✅ Message forwarded");
-
-// Save mapping for edits
 messageMap.set(msg.id, sent.id);
+} catch (err) {
+console.log("⚠️ Could not forward message:", err.message);
+}
 },
 new NewMessage({
 chats: [SOURCE_CHAT],
@@ -95,13 +92,17 @@ chats: [SOURCE_CHAT],
 edited: true,
 })
 );
+
+} catch (err) {
+console.error("❌ BOT CRASHED:", err);
+}
 })();
 
 
-// ================= KEEP RAILWAY ALIVE =================
+// ================= RAILWAY KEEP-ALIVE SERVER =================
 http.createServer((req, res) => {
 res.writeHead(200);
 res.end("Bot is running");
-}).listen(process.env.PORT || 3000);
-
-console.log("🌍 Web server started to keep bot alive");
+}).listen(process.env.PORT || 3000, () => {
+console.log("🌍 Web server running — Railway will not sleep");
+});
