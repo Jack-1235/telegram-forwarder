@@ -26,11 +26,17 @@ console.log("✅ Logged in and running...");
 // 🔥 NEW MESSAGE HANDLER
 client.addEventHandler(async (event) => {
 
-if (event.chatId.toString() !== SOURCE_CHAT.toString()) return;
+if (!event.message) return; // ⬅️ prevents crash
+
 const msg = event.message;
+if (!msg.id) return;
+const msgId = msg.id.toString();
+
+console.log("Message detected:", msgId);
+
+// rest of your code…
 
 // Ignore empty messages
-if (!msg) return;
     // Ignore empty messages
 
     const text = (msg.text || "").toLowerCase();
