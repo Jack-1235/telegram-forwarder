@@ -4,6 +4,7 @@ console.log("BOT STARTING...");
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const { NewMessage } = require("telegram/events");
+const http = require("http"); // ⭐ needed for Railway
 
 const apiId = 31581826;
 const apiHash = "3e159192e5ad7e5052530bb69325994c";
@@ -94,7 +95,13 @@ chats: [SOURCE_CHAT],
 edited: true,
 })
 );
-
-// 🔥 KEEP BOT ALIVE (THIS STOPS RAILWAY SHUTTING IT DOWN)
-process.stdin.resume();
 })();
+
+
+// ================= KEEP RAILWAY ALIVE =================
+http.createServer((req, res) => {
+res.writeHead(200);
+res.end("Bot is running");
+}).listen(process.env.PORT || 3000);
+
+console.log("🌍 Web server started to keep bot alive");
