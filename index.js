@@ -26,12 +26,14 @@ console.log("✅ Logged in and running...");
 // 🔥 NEW MESSAGE HANDLER
 client.addEventHandler(async (event) => {
 
-if (!event.message) return; // ⬅️ prevents crash
+if (!event.message) return;
+if (!event.chatId) return;
 
 const msg = event.message;
-if (!msg.id) return;
-const msgId = msg.id.toString();
 
+if (!msg.id) return;
+
+const msgId = msg.id.toString();
 console.log("Message detected:", msgId);
 
 // rest of your code…
