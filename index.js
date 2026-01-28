@@ -19,12 +19,7 @@ const messageMap = new Map();
         connectionRetries: 5
     });
 
-    await client.start({
-phoneNumber: async () => await input.text("Enter phone number: "),
-password: async () => await input.text("2FA password (if any): "),
-phoneCode: async () => await input.text("Code from Telegram: "),
-onError: (err) => console.log(err),
-});
+    await client.start();
 
 console.log("✅ Logged in and running...");
 // 🔥 NEW MESSAGE HANDLER
