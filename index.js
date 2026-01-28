@@ -3,15 +3,16 @@ console.log("BOT STARTING...");
 
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
-const { NewMessage, EditedMessage } = require("telegram/events");
+const { NewMessage } = require("telegram/events"); // ❗ ONLY NewMessage
 
 const apiId = 31581826;
 const apiHash = "3e159192e5ad7e5052530bb69325994c";
-const stringSession = new StringSession("");
+const stringSession = new StringSession("1BAAOMTQ5LjE1NC4xNjcuOTEAUAnTuPcDAXwmy5yYMHlLReoR7nXplAXAPmPG3IdxtXlzGBsnskkf/vR8IWHt58ZCeT8fGMrmhy6BeFMoo7aEGvKaF8JZ2ZcwRzQK392t7ZF6HYV4+L/udesJAkv1cPpV3bfWydl1FsHm6CG/dLClGUIqhiSrXrxGN8Grp3sG4rp7vNhoGKhdWfDYkTPHS0/hBjDKyM1U5IydIqN5CXU/J97xE4XGmemvbTfWB7saP928c7nnJrBbPLfhZPMvQBVTMrjF6si2VDX1NoHkUoedDJbe8xh0w20CAA6QgtvlT2d0R8/uw0TCiweCrZeNRDjItfR/wGDErZmOO3dWtFRcYY0=");
+
 const SOURCE_CHAT = -1002201450581;
 const DEST_CHAT = -1003424003343;
 
-// Map original message → copied message
+// Map original → copied message
 const messageMap = new Map();
 
 const client = new TelegramClient(stringSession, apiId, apiHash, {
@@ -19,7 +20,7 @@ connectionRetries: 5,
 });
 
 (async () => {
-await client.start();
+await client.connect();
 console.log("✅ Logged in and running...");
 
 // ================= NEW MESSAGE HANDLER =================
@@ -27,7 +28,6 @@ client.addEventHandler(
 async (event) => {
 if (!event.message) return;
 const msg = event.message;
-
 if (!msg.id) return;
 
 console.log("📩 Message detected:", msg.id);
@@ -71,7 +71,7 @@ incoming: true,
 })
 );
 
-// ================= EDIT HANDLER =================
+// ================= EDIT HANDLER (CORRECT WAY) =================
 client.addEventHandler(
 async (event) => {
 const msg = event.message;
@@ -90,8 +90,9 @@ text: msg.text,
 console.log("✅ Copy updated");
 }
 },
-new EditedMessage({
+new NewMessage({
 chats: [SOURCE_CHAT],
+edited: true, // 🔥 THIS replaces EditedMessage
 })
 );
 })();
