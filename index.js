@@ -8,7 +8,7 @@ const http = require("http"); // Railway keep-alive server
 
 const apiId = 31581826;
 const apiHash = "3e159192e5ad7e5052530bb69325994c";
-const stringSession = new StringSession("1BAAOMTQ5LjE1NC4xNjcuOTEAUAnTuPcDAXwmy5yYMHlLReoR7nXplAXAPmPG3IdxtXlzGBsnskkf/vR8IWHt58ZCeT8fGMrmhy6BeFMoo7aEGvKaF8JZ2ZcwRzQK392t7ZF6HYV4+L/udesJAkv1cPpV3bfWydl1FsHm6CG/dLClGUIqhiSrXrxGN8Grp3sG4rp7vNhoGKhdWfDYkTPHS0/hBjDKyM1U5IydIqN5CXU/J97xE4XGmemvbTfWB7saP928c7nnJrBbPLfhZPMvQBVTMrjF6si2VDX1NoHkUoedDJbe8xh0w20CAA6QgtvlT2d0R8/uw0TCiweCrZeNRDjItfR/wGDErZmOO3dWtFRcYY0=");
+const stringSession = new StringSession("1BAAOMTQ5LjE1NC4xNjcuOTEAUIH2vLewdbRoDQ734df/DiWSe2CVlbcFF15YpJx2ttrwHVsL8ORHZONo1RlGv6R0reeX2tdvpNuLwKWdjiWWapd9DjNYDgGOQnNlkfd7iUAeAcaG64SgBvZZ+ta56VxDxOKZbABhKa+zhUUskNiaMIuARNXaYDA0Cm4gpBNVASA+Y7OW4g8FnkA2p2xUVvCzWiF720LUQvZtzsvSRNO2B8WaOIibDnVjSSRBNEPZtyHs1AxbqQ/+gxVIbqI61b2Qu2yMati2SE6+Q3PIAAIEPKw/uZiZ92Y8xyHYhNdhBQJje4mlK+dPWXZfkwm+Of8/RoFcwufP0BRrrCmG2dx/18k=");
 
 const SOURCE_CHAT = -1002201450581;
 const DEST_CHAT = -1003424003343;
