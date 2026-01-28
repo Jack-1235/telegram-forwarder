@@ -9,18 +9,19 @@ const apiHash = "3e159192e5ad7e5052530bb69325994c"; // <-- PUT YOUR API HASH
 const stringSession = new StringSession("1BAAOMTQ5LjE1NC4xNjcuOTEAUKQaN5CnLGsK1hsFpdHmY1U6HNa0fpO56CpNbqopt0l5Y9pl0rePmIKaTep/THfrlBbxea6gZgoBOrR3uRCpgxGR8SBlidz93WpZdWE8dys05R8VcSJEclXPTacld+SnxXpt3cSMYPd4/nyN1ZbMKBQWI7+5IlO4983RpdUFUgkj2ikN2weF4kel9VD2TiV6gdlbyuI5K56Mzqz7Rtc4/q9IeUJ8nPJ9i88zUO8JtyYpj5YipRFM0eZ10b10uYSmc90RRpPq/EQDPmUzIjsOnB9y1QpzHYDxHLbvwHF4BYvv4rMaZjdmFfHkOtTPTxlyjSFD88TJAucGlaYthC8REO4=");
 const SOURCE_CHAT = -1002201450581; // without @
 const DEST_CHAT = -1003424003343; // without @
-
 // Map to link original message → copied message
 const messageMap = new Map();
 
+const client = new TelegramClient(stringSession, apiId, apiHash, {
+connectionRetries: 5,
+});
+
 (async () => {
-    const client = new TelegramClient(stringSession, apiId, apiHash, {
-        connectionRetries: 5
-    });
-
-    await client.start();
-
+await client.start();
 console.log("✅ Logged in and running...");
+})();
+
+
 // 🔥 NEW MESSAGE HANDLER
 client.addEventHandler(async (event) => {
 
