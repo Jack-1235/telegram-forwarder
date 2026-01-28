@@ -27,8 +27,6 @@ console.log("✅ Logged in and running...");
 client.addEventHandler(async (event) => {
 
 if (!event.message) return;
-if (!event.chatId) return;
-
 const msg = event.message;
 
 if (!msg.id) return;
@@ -58,7 +56,6 @@ console.log("Message detected:", msgId);
     }
 
     // ONLY react to source chat
-    if (event.chatId.toString() !== SOURCE_CHAT.toString()) return;
 
     console.log("📥 Message from SOURCE detected");
 
