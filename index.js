@@ -1,3 +1,4 @@
+console.log("BOT FILE IS RUNNING");
 console.log("BOT STARTING...");
 console.log("BOT STARTING...");
 const { TelegramClient } = require("telegram");
@@ -62,8 +63,12 @@ if (!msg) return;
     console.log("✅ Message forwarded");
     // Save for edit tracking
     messageMap.set(msg.id, sent.id);
-}
-}, new NewMessage({}));
+
+}, new NewMessage({
+chats: [SOURCE_CHAT],
+incoming: true,
+func: (e) => e.message.editDate
+}));
 
 
 // ✨ EDIT HANDLER
@@ -87,9 +92,8 @@ client.addEventHandler(async (event) => {
         console.log("✅ Copy updated");
     } // closes: if (messageMap.has(msg.id))
  
- , new NewMessage({
-    chats: [SOURCE_CHAT],
-    incoming: true,
-    func: (e) => e.message.editDate // 🔥 THIS LINE IS THE KEY
-  }));
-  })();
+}, new NewMessage({
+chats: [SOURCE_CHAT],
+incoming: true,
+func: (e) => e.message.editDate
+}));
