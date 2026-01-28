@@ -62,9 +62,9 @@ if (!msg) return;
 
     console.log("✅ Message forwarded");
     // Save for edit tracking
-    messageMap.set(msg.id, sent.id);
+   messageMap.set(msg.id, sent.id);
 
-}, new NewMessage({
+}), new NewMessage({
 chats: [SOURCE_CHAT],
 incoming: true,
 func: (e) => e.message.editDate
@@ -97,3 +97,4 @@ chats: [SOURCE_CHAT],
 incoming: true,
 func: (e) => e.message.editDate
 }));
+})();
