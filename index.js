@@ -3,7 +3,6 @@ console.log("BOT STARTING...");
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const { NewMessage } = require("telegram/events");
-const input = require("input");
 
 const apiId = 31581826; // <-- PUT YOUR API ID
 const apiHash = "3e159192e5ad7e5052530bb69325994c"; // <-- PUT YOUR API HASH
