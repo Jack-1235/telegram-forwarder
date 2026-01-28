@@ -1,16 +1,18 @@
 console.log("BOT FILE IS RUNNING");
 console.log("BOT STARTING...");
-console.log("BOT STARTING...");
+
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const { NewMessage, MessageEdited } = require("telegram/events");
 
-const apiId = 31581826; // <-- PUT YOUR API ID
-const apiHash = "3e159192e5ad7e5052530bb69325994c"; // <-- PUT YOUR API HASH
+const apiId = 31581826;
+const apiHash = "3e159192e5ad7e5052530bb69325994c";
 const stringSession = new StringSession("1BAAOMTQ5LjE1NC4xNjcuOTEAUKQaN5CnLGsK1hsFpdHmY1U6HNa0fpO56CpNbqopt0l5Y9pl0rePmIKaTep/THfrlBbxea6gZgoBOrR3uRCpgxGR8SBlidz93WpZdWE8dys05R8VcSJEclXPTacld+SnxXpt3cSMYPd4/nyN1ZbMKBQWI7+5IlO4983RpdUFUgkj2ikN2weF4kel9VD2TiV6gdlbyuI5K56Mzqz7Rtc4/q9IeUJ8nPJ9i88zUO8JtyYpj5YipRFM0eZ10b10uYSmc90RRpPq/EQDPmUzIjsOnB9y1QpzHYDxHLbvwHF4BYvv4rMaZjdmFfHkOtTPTxlyjSFD88TJAucGlaYthC8REO4=");
-const SOURCE_CHAT = -1002201450581; // without @
-const DEST_CHAT = -1003424003343; // without @
-// Map to link original message → copied message
+
+const SOURCE_CHAT = -1002201450581;
+const DEST_CHAT = -1003424003343;
+
+// Map original message → copied message
 const messageMap = new Map();
 
 const client = new TelegramClient(stringSession, apiId, apiHash, {
@@ -21,11 +23,9 @@ connectionRetries: 5,
 await client.start();
 console.log("✅ Logged in and running...");
 
-
-
 // 🔥 NEW MESSAGE HANDLER
-client.addEventHandler(async (event) => {
-
+client.addEventHandler(
+async (event) => {
 if (!event.message) return;
 const msg = event.message;
 
@@ -34,69 +34,73 @@ if (!msg.id) return;
 const msgId = msg.id.toString();
 console.log("Message detected:", msgId);
 
-// rest of your code…
+// Make sure it's from SOURCE chat
+if (msg.chatId.toString() !== SOURCE_CHAT.toString()) return;
+console.log("📥 Message from SOURCE detected");
 
-// Ignore empty messages
-    // Ignore empty messages
+const text = (msg.text || "").toLowerCase();
 
-    const text = (msg.text || "").toLowerCase();
+// 🚫 Scam filter
+if (
+text.includes("connect your wallet") ||
+text.includes("claiming") ||
+text.includes("migrating") ||
+text.includes("validate") ||
+text.includes("rectify") ||
+text.includes("rewards") ||
+(text.includes("t.me/") && text.includes("bot"))
+) {
+console.log("🚫 Scam message blocked");
+return;
+}
 
-    // Block obvious scam words
-    if (
-        text.includes("connect your wallet") ||
-        text.includes("claiming") ||
-        text.includes("migrating") ||
-        text.includes("validate") ||
-        text.includes("rectify") ||
-        text.includes("rewards") ||
-        (text.includes("t.me/") && text.includes("bot"))
-    ) {
-        console.log("🚫 Scam message blocked");
-        return;
-    }
+// ❗ Only copy TEXT (media is restricted in some chats)
+let sent;
+try {
+sent = await client.sendMessage(DEST_CHAT, {
+message: msg.text || "",
+});
+} catch (err) {
+console.log("⚠️ Could not forward message:", err.message);
+return;
+}
 
-    // ONLY react to source chat
+console.log("✅ Message forwarded");
 
-    
-    console.log("📥 Message from SOURCE detected");
-    // Send text OR media
-    const sent = await client.sendMessage(DEST_CHAT, {
-        message: msg.text || "",
-        file: msg.media || undefined
-    });
-
-    console.log("✅ Message forwarded");
-    // Save for edit tracking
-   messageMap.set(msg.id, sent.id);
-
-}), new NewMessage({
+// Save for edit tracking
+messageMap.set(msg.id, sent.id);
+},
+new NewMessage({
 chats: [SOURCE_CHAT],
 incoming: true,
-}));
-
+})
+);
 
 // ✨ EDIT HANDLER
-client.addEventHandler(async (event) => {
+client.addEventHandler(
+async (event) => {
+const msg = event.message;
+if (!msg || !msg.text) return;
 
-    const msg = event.message;
-    if (!msg || !msg.text) return;
+if (messageMap.has(msg.id)) {
+console.log("✏️ Signal edited — updating");
 
-    // Check if this message was forwarded before
-    if (messageMap.has(msg.id)) {
+const copiedMsgId = messageMap.get(msg.id);
 
-        console.log("✏️ Signal edited — updating");
+try {
+await client.editMessage(DEST_CHAT, {
+message: copiedMsgId,
+text: msg.text,
+});
 
-        const copiedMsgId = messageMap.get(msg.id);
-
-        await client.editMessage(DEST_CHAT, {
-            message: copiedMsgId,
-            text: msg.text,
-        });
-
-        console.log("✅ Copy updated");
-    } // closes: if (messageMap.has(msg.id))
- 
-}, new MessageEdited({
-chats: [SOURCE_CHAT]
-}));
+console.log("✅ Copy updated");
+} catch (err) {
+console.log("⚠️ Edit failed:", err.message);
+}
+}
+},
+new MessageEdited({
+chats: [SOURCE_CHAT],
+})
+);
 })();
