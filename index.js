@@ -1,4 +1,5 @@
 console.log("BOT STARTING...");
+console.log("BOT STARTING...");
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const { NewMessage } = require("telegram/events");
