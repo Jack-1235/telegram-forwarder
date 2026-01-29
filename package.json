@@ -1,11 +1,1 @@
-{
-"name": "telegram-forwarder",
-"version": "1.0.0",
-"main": "index.js",
-"scripts": {
-"start": "node index.js"
-},
-"dependencies": {
-"telegram": "^2.0.0"
-}
-}
+{"name":"telegram-forwarder","version":"1.0.0","main":"index.js","scripts":{"start":"node index.js"},"dependencies":{"input":"^1.0.1","telegram":"^2.0.0"}}
