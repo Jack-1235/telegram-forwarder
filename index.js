@@ -9,7 +9,6 @@ const http = require("http");
 const apiId = 31581826;
 const apiHash = "3e159192e5ad7e5052530bb69325994c";
 
-// 🔥 PASTE YOUR STRING SESSION BETWEEN THE QUOTES
 const stringSession = new StringSession("1BAAOMTQ5LjE1NC4xNjcuOTEAUIbsSoZoQazAkuFXF+PRqtSM8ur+5Ca+FAgczF2DiLwugbljaL/2wo+Fk5LwsHg9ZC+OX7c5SQYFQETiRLmSSYxS3ZSC00wZlHZgE17/OGtqtriwjVfc42NwM+46miSC5C3I5cy4Aihh/gemB/glDyAl+81CHQyjD/tXVyECuWSbrtBs0+Q5pQrhzNN5H7BxEZqiu3lU3PyYJf4BSYMBupAoHJKfqkjTfB8dwkpmEoACTw5q+2Nlt/n7q3kuy3Km3izJm46UXfzayxCwveJpAGADPCsgpD065WsMlEVKGr1jr2lBUsqsOWog2C8tMYE2qaxrHL47WSahzvcZJQX8FjY=");
 
 const SOURCE_CHAT = -1002201450581;
@@ -17,7 +16,6 @@ const DEST_CHAT = -1003424003343;
 
 const messageMap = new Map();
 
-// 🔁 SAFE SEND FUNCTION
 async function safeSend(client, chatId, content, isFile = false) {
 try {
 if (isFile) {
@@ -41,17 +39,38 @@ autoReconnect: true
 });
 
 console.log("🔌 Connecting to Telegram...");
-await client.connect(); // ✅ NOW WE USE CONNECT (NO LOGIN FLOW)
+await client.connect();
 console.log("✅ Logged in and running...");
 
-// ================= NEW MESSAGE HANDLER =================
+// ===== SESSION INFO =====
+const me = await client.getMe();
+console.log("🤖 Logged in as:", me.firstName, "| ID:", me.id);
+
+// ===== LIST ALL CHATS =====
+const dialogs = await client.getDialogs({});
+console.log("📚 DIALOG LIST:");
+for (const d of dialogs) {
+console.log("CHAT:", d.title || d.name || d.firstName, "| ID:", d.id);
+}
+console.log("=================================");
+
+// ================= MESSAGE HANDLER =================
 client.addEventHandler(
 async (event) => {
 if (!event.message) return;
+
+// 🔥 CHAT ID LOGGER
+const chat = await event.getChat();
+console.log("====== NEW MESSAGE ======");
+console.log("Chat Title:", chat.title || chat.firstName || "Private Chat");
+console.log("Chat ID:", event.chatId);
+console.log("Message ID:", event.message.id);
+console.log("Text:", event.message.text);
+console.log("=========================");
+
 const msg = event.message;
 if (!msg.id) return;
 
-console.log("📩 Message detected:", msg.id);
 const text = (msg.text || "").toLowerCase();
 
 if (
@@ -119,12 +138,11 @@ console.log("⚠️ Edit failed, reconnect likely");
 }
 },
 new NewMessage({
-chats: [SOURCE_CHAT],
+chats: [SOURCE_CHAT, DEST_CHAT],
 edited: true,
 })
 );
 
-// ❤️ Heartbeat
 setInterval(() => {
 console.log("💓 Bot heartbeat:", new Date().toISOString());
 }, 60000);
@@ -134,10 +152,8 @@ console.error("❌ BOT CRASHED:", err);
 }
 })();
 
-// Prevent crash on unhandled promise
 process.on("unhandledRejection", err => console.log("Unhandled:", err.message));
 
-// 🌍 Railway web server
 const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => {
 res.writeHead(200);
