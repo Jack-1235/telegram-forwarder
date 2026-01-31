@@ -9,70 +9,37 @@ const http = require("http");
 const apiId = 31581826;
 const apiHash = "3e159192e5ad7e5052530bb69325994c";
 
-const stringSession = new StringSession("1BAAOMTQ5LjE1NC4xNjcuOTEAUIbsSoZoQazAkuFXF+PRqtSM8ur+5Ca+FAgczF2DiLwugbljaL/2wo+Fk5LwsHg9ZC+OX7c5SQYFQETiRLmSSYxS3ZSC00wZlHZgE17/OGtqtriwjVfc42NwM+46miSC5C3I5cy4Aihh/gemB/glDyAl+81CHQyjD/tXVyECuWSbrtBs0+Q5pQrhzNN5H7BxEZqiu3lU3PyYJf4BSYMBupAoHJKfqkjTfB8dwkpmEoACTw5q+2Nlt/n7q3kuy3Km3izJm46UXfzayxCwveJpAGADPCsgpD065WsMlEVKGr1jr2lBUsqsOWog2C8tMYE2qaxrHL47WSahzvcZJQX8FjY=");
+// ✅ Your saved session (DO NOT run bot in 2 places at once)
+const stringSession = new StringSession("1BAAOMTQ5LjE1NC4xNjcuOTEAUFThHWFUK4muyu1Puogz/pt986InAjK6VPCepQac2nUvM9xflqeBvlcQKjf43RpMmSQmsJ3yw7iykJ+U1y0YKwWkAmvPglPS0ZdTQEvkk+Pfd+oHnEKnuy2dLFseonRtCcTuCZ69nH7mxyLKMJzFXXkDOpeNFwpOaG1c7HDw4cyob8dOUYeRHEBgI++W4g6CLVNNlAfH67KneO3uquzofko+IJ84Cb9kZcq3ssCxEW5XlbHhRvRl/jkbXRI+hB4psM0DDYyumM6qaVhFLRLpEv4cnrTsJhVU86yPFkOsMVKjEFIOdxnEQ5uYJIjNXvwyc6+6ky+wCJ9+ZsjnPjbAiCQ=");
 
 const SOURCE_CHAT = -1002201450581;
 const DEST_CHAT = -1003424003343;
 
+// Map original → copied message
 const messageMap = new Map();
-
-async function safeSend(client, chatId, content, isFile = false) {
-try {
-if (isFile) {
-return await client.sendFile(chatId, content);
-} else {
-return await client.sendMessage(chatId, content);
-}
-} catch (err) {
-console.log("⚠️ Send failed, retrying in 5s...");
-setTimeout(() => safeSend(client, chatId, content, isFile), 5000);
-}
-}
 
 (async () => {
 try {
-
 const client = new TelegramClient(stringSession, apiId, apiHash, {
-connectionRetries: 999999,
-retryDelay: 5000,
-autoReconnect: true
+connectionRetries: 5,
 });
 
 console.log("🔌 Connecting to Telegram...");
 await client.connect();
 console.log("✅ Logged in and running...");
 
-// ===== SESSION INFO =====
-const me = await client.getMe();
-console.log("🤖 Logged in as:", me.firstName, "| ID:", me.id);
-
-// ===== LIST ALL CHATS =====
-const dialogs = await client.getDialogs({});
-console.log("📚 DIALOG LIST:");
-for (const d of dialogs) {
-console.log("CHAT:", d.title || d.name || d.firstName, "| ID:", d.id);
-}
-console.log("=================================");
-
-// ================= MESSAGE HANDLER =================
+// ================= NEW MESSAGE HANDLER =================
 client.addEventHandler(
 async (event) => {
 if (!event.message) return;
-
-// 🔥 CHAT ID LOGGER
-const chat = await event.getChat();
-console.log("====== NEW MESSAGE ======");
-console.log("Chat Title:", chat.title || chat.firstName || "Private Chat");
-console.log("Chat ID:", event.chatId);
-console.log("Message ID:", event.message.id);
-console.log("Text:", event.message.text);
-console.log("=========================");
-
 const msg = event.message;
 if (!msg.id) return;
 
+console.log("📩 Message detected:", msg.id);
+
 const text = (msg.text || "").toLowerCase();
 
+// 🚫 Scam filter
 if (
 text.includes("connect your wallet") ||
 text.includes("claiming") ||
@@ -89,24 +56,24 @@ return;
 try {
 let sent;
 
+// 🖼 If message has media (image/video/file)
 if (msg.media) {
-sent = await safeSend(client, DEST_CHAT, {
+sent = await client.sendFile(DEST_CHAT, {
 file: msg.media,
 caption: msg.text || "",
-}, true);
+});
 } else {
-sent = await safeSend(client, DEST_CHAT, {
+// 📝 Text only
+sent = await client.sendMessage(DEST_CHAT, {
 message: msg.text || "",
 });
 }
 
-if (sent) {
 console.log("✅ Message forwarded");
 messageMap.set(msg.id, sent.id);
-}
 
 } catch (err) {
-console.log("⚠️ Forward error:", err.message);
+console.log("⚠️ Could not forward message:", err.message);
 }
 },
 new NewMessage({
@@ -126,38 +93,32 @@ console.log("✏️ Edited message detected:", msg.id);
 if (messageMap.has(msg.id)) {
 const copiedMsgId = messageMap.get(msg.id);
 
-try {
 await client.editMessage(DEST_CHAT, {
 message: copiedMsgId,
 text: msg.text,
 });
+
 console.log("✅ Copy updated");
-} catch (err) {
-console.log("⚠️ Edit failed, reconnect likely");
-}
 }
 },
 new NewMessage({
-chats: [SOURCE_CHAT, DEST_CHAT],
+chats: [SOURCE_CHAT],
 edited: true,
 })
 );
-
-setInterval(() => {
-console.log("💓 Bot heartbeat:", new Date().toISOString());
-}, 60000);
 
 } catch (err) {
 console.error("❌ BOT CRASHED:", err);
 }
 })();
 
-process.on("unhandledRejection", err => console.log("Unhandled:", err.message));
 
-const PORT = process.env.PORT || 3000;
+// ================= RAILWAY KEEP-ALIVE SERVER =================
+const PORT = process.env.PORT; // Railway REQUIRES this
+
 http.createServer((req, res) => {
 res.writeHead(200);
 res.end("Bot is running");
 }).listen(PORT, () => {
-console.log(`🌍 Web server running on port ${PORT}`);
+console.log(`🌍 Web server running on port ${PORT} — Railway will not sleep`);
 });
