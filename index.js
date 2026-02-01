@@ -130,7 +130,7 @@ console.error("❌ BOT CRASHED:", err);
 })();
 
 // ================= RAILWAY KEEP-ALIVE SERVER =================
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8080;
 http
 .createServer((req, res) => {
 res.writeHead(200);
