@@ -46,7 +46,7 @@ const stringSession = new StringSession(process.env.STRING_SESSION || "");
 * CHANNEL MAPPING
 * Specific identities for Bot 2 Source and Destination.
 */
-const SOURCE_CHAT_ID = "1004392810563";
+const SOURCE_CHAT_ID = "-1004392810563";
 const DEST_CHAT_ID = "-1003424003343";
 const CLEAN_SOURCE = SOURCE_CHAT_ID.replace("-100", "");
 
